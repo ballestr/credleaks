@@ -1,0 +1,17 @@
+## Tests cases for gitleak
+
+## json / hieradata files
+# password: testjsoncomment
+password:testjson1
+password : testjson2
+password::root : testjson3
+upsd_password: ENC[PKCS7,MIIBeQYJKo]
+
+## shell and ini files, with quotes
+#password="testcomment"
+# password 'testcomment'
+; password 'testcomment'
+password = "test1"
+password "test2"
+asdf_password 'test3'
+

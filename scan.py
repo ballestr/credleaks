@@ -88,8 +88,9 @@ def extract_json_array(text: str):
     """
     Extract the first top-level JSON array from text.
     Returns a Python list or raises ValueError.
+    Note that showing the thinking process may break the JSON output.
     """
-    start = text.rfind("[")
+    start = text.find("[")
     end = text.rfind("]")
 
     if start == -1 or end == -1 or end < start:

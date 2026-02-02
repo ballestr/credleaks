@@ -1,3 +1,4 @@
+![CredLeaks logo](docs/CredLeaks.github.png)
 # CredLeaks - Local AI Security Scanner
 
 CredLeaks (`credleaks`) is a static automated security scanner that leverages local Large Language Models (LLMs) via **Ollama** to identify hard-coded secrets in source code and configuration files.

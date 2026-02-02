@@ -7,7 +7,7 @@ import sys
 import time
 import argparse
 
-#MODEL = "qwen3:8b" ## works but is slow
+#MODEL = "qwen3:8b" ## works well but is slow
 #MODEL = "qwen2.5-coder:1.5b" ## no answers ?
 MODEL = "qwen2.5-coder:7b" ## 
 #MODEL = "llama3.2:latest" ## useless, flags too much stuff
@@ -29,7 +29,7 @@ DO NOT flag:
 - Variable names or parameter names
 - lookup(), hiera(), eyaml, sops, vault references
 - Encrypted or hashed values unless clearly marked as a password
-- File paths that may contain secrets
+- File names or paths that may contain secrets
 - Comments unless they contain an actual usable credential
 
 If there are NO findings, output an empty JSON array: []
@@ -209,7 +209,7 @@ def main():
     
     targets = args.targets
 
-    print(f"{ts()} aileeks using ollama model {MODEL}",flush=True)
+    print(f"{ts()} credleaks using ollama model {MODEL}",flush=True)
     results = []
     stats = {}
     t_start = datetime.datetime.now()

@@ -1,0 +1,21 @@
+#######################
+## Managed by Puppet ##
+#######################
+# source: templates/monit.conf.erb
+
+set httpd port 2812 and
+use address localhost    # only accept connection from localhost
+allow localhost          # allow localhost to connect to the server and
+allow admin:0982xf$GjkSl # require user 'admin' 
+
+set daemon 60
+set statefile /var/run/monit.state
+
+set mailserver localhost
+#set alert root@<%=@fqdn%>
+<% @mailto.each { |oneaddress| -%>
+set alert <%=oneaddress%>
+<% } -%>
+
+include /etc/monit.d/*
+

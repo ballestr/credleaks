@@ -1,8 +1,8 @@
-# AILeek - Local AI Security Scanner
+# CredLeaks - Local AI Security Scanner
 
-AILeek (`scan.py`) is a static automated security scanner that leverages local Large Language Models (LLMs) via **Ollama** to identify hard-coded secrets in source code and configuration files.
+CredLeaks (`credleaks`) is a static automated security scanner that leverages local Large Language Models (LLMs) via **Ollama** to identify hard-coded secrets in source code and configuration files.
 
-Unlike traditional regex-based scanners, AILeek uses semantic understanding to distinguish between real credentials and false positives like placeholders, variables, or test data.
+Unlike traditional regex-based scanners, CredLeaks uses semantic understanding to distinguish between real credentials and false positives like placeholders, variables, or test data.
 
 ## Features
 
@@ -23,13 +23,13 @@ Unlike traditional regex-based scanners, AILeek uses semantic understanding to d
 Basic usage scanning the current directory:
 
 ```bash
-./scan.py .
+./credleaks .
 ```
 
 Scan specific files or directories:
 
 ```bash
-./scan.py src/config.py /etc/myapp/
+./credleaks src/config.py /etc/myapp/
 ```
 
 ### Options
@@ -46,20 +46,20 @@ Scan specific files or directories:
 
 Use a specific model (e.g., a smaller coding model):
 ```bash
-./scan.py . --model qwen2.5-coder:1.5b
+./credleaks . --model qwen2.5-coder:1.5b
 ```
 
 Debug why a model is flagging false positives by seeing its "thinking":
 ```bash
-./scan.py secretive.py --show-thinking
+./credleaks secretive.py --show-thinking
 ```
 
 ## Model Performance
 
 *Values below are experimental observations.*
 
-### qwen2.5-coder:7b
-- **Speed**: Moderate.
+### qwen3:8b
+- **Speed**: Slow, around 60 seconds per file on a Macbook Air M2.
 - **Accuracy**: Good balance. Follows instructions well to output strict JSON.
 
 ### qwen2.5-coder:1.5b

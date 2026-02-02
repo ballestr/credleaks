@@ -7,10 +7,11 @@ import sys
 import time
 import argparse
 
-#MODEL = "qwen3:8b" ## works well but is slow
-#MODEL = "qwen2.5-coder:1.5b" ## no answers ?
-MODEL = "qwen2.5-coder:7b" ## 
-#MODEL = "llama3.2:latest" ## useless, flags too much stuff
+MODEL = "qwen3:8b" ## works well but is quite slow
+#MODEL = "deepseek-r1:7b" ## almost as good as qwen, just slightly faster
+#MODEL = "qwen2.5-coder:1.5b" ## fast but quite a few false positives
+#MODEL = "qwen2.5-coder:7b" ## slower and not much better than 1.5b
+#MODEL = "llama3.2:latest" ## almost useless, flags too much stuff
 MAX_FILE_SIZE = 200_000   # skip huge blobs
 RETRIES = 2
 SHOW_THINKING = False
@@ -119,16 +120,15 @@ def scan_file(path: pathlib.Path):
 
     for attempt in range(RETRIES + 1):
         if attempt > 0 :
-            print(f"{ts()} ## scan {path} attempt {attempt}",flush=True)
+            print(f"{ts()} ## scan {path} attempt {attempt+1}",flush=True)
         output = None
         findings = []
         try:
             output = run_ollama(prompt)
             findings = extract_json_array(output)
             if isinstance(findings, list):
-                print(output)
+                if len(findings) > 0: print(output)
                 break
-                #return findings
         except Exception as e:
             if attempt == RETRIES:
                 findings = [{
@@ -139,9 +139,8 @@ def scan_file(path: pathlib.Path):
                     "reason": f"LLM failure: {e}"
                 }]
                 break
-            print(f"## Exception: {e}")
-            print(output)
-            #raise
+            print(f"{ts()} ## Exception: {e}")
+            if output is not None: print(output)
             time.sleep(1)
 
     t1 = datetime.datetime.now()
@@ -226,6 +225,7 @@ def main():
     #
     print("----"*20)
     json.dump(results, sys.stdout, indent=2)
+    print() ## add newline after json
 
 if __name__ == "__main__":
     main()

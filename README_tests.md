@@ -19,7 +19,7 @@ This contains a list used for pattern matching by gitleaks. LLM models may think
 ## Setup
 
 Tested on a MacBook Air M2 (2022) with 16GB of RAM. 
-Ollama installed via Homebrew.
+Ollama installed via Homebrew. Context set globally at 32k.
 
 Models tested:
 - qwen3:8b
@@ -44,12 +44,13 @@ I have been testing the `credleaks` script with different models and I have foun
 |------|-------|------|--------|
 | `unbound.conf` | `qwen3:8b`           | 41s | OK |
 | `unbound.conf` | `deepseek-r1:7b`     | 29s | OK |
-| `unbound.conf` | `qwen2.5-coder:1.5b` | 26s | False positive on files |
+| `unbound.conf` | `qwen2.5-coder:7b`   | 26s | False positive on files |
+| `unbound.conf` | `qwen2.5-coder:1.5b` |  8s | False positive on files |
 | `unbound.conf` | `llama3.2:latest`    | 11s | False positive on files |
 
 | Test | Model | Time | Result |
 |------|-------|------|--------|
-| `monit.conf.erb` | `qwen3:8b`           | 41s | OK |
+| `monit.conf.erb` | `qwen3:8b`           | 35s | OK |
 | `monit.conf.erb` | `deepseek-r1:7b`     | 22s | OK |
 | `monit.conf.erb` | `qwen2.5-coder:7b`   | 10s | OK |
 | `monit.conf.erb` | `qwen2.5-coder:1.5b` |  2s | False negative |

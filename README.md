@@ -1,11 +1,11 @@
 ![CredLeaks logo](docs/CredLeaks.github.png)
-# CredLeaks - Local AI Security Scanner
+# CredLeaks - Security Scanner using Local AI
 
-CredLeaks (`credleaks`) is a static automated security scanner that leverages local Large Language Models (LLMs) via **Ollama** to identify hard-coded secrets in source code and configuration files.
+CredLeaks is a simple static security scanner that uses local Large Language Models (LLMs) via **Ollama** to identify hard-coded secrets in source code and configuration files.
 
 Unlike traditional regex-based scanners like [gitleaks](https://github.com/gitleaks/gitleaks), CredLeaks uses the semantic understanding of LLMs to distinguish between real credentials and false positives like placeholders, variables, or test data, and to find secrets in less obvious places that do not match simple patterns.
 
-Using local LLMs ensures that no code is sent to the cloud, and that the scanner can be run in air-gapped environments. You can use this to sanitize your code before starting to work on it with a cloud-based AI assistant.
+Using local LLMs ensures that no code is sent to the cloud, and that the scanner can be run in air-gapped environments. You can use this to sanitize your repository before starting to work on it with a cloud-based AI assistant like OpenCode.
 
 ## Features
 
@@ -60,7 +60,7 @@ Debug why a model is flagging false positives by seeing its "thinking":
 ## Model Performance
 
 I have managed to get good results with some thinking model that fits on my 16GB RAM Macbook air M2.
-The non-thinking models are faster but produce more false positives. See the [README_tests.md](README_tests.md) for more details.
+The non-thinking models are much faster but produce more false positives. See the [README_tests.md](README_tests.md) for more details.
 
 ### qwen3:8b
 - **Speed**: Slow, around 60 seconds per file on a Macbook Air M2.
@@ -71,7 +71,7 @@ The non-thinking models are faster but produce more false positives. See the [RE
 - **Accuracy**: Good. Follows instructions well to output strict JSON.
 
 ### qwen2.5-coder:1.5b
-- **Speed**: Fast.
+- **Speed**: Fast, few seconds per file.
 - **Accuracy**: Lower. May struggle with complex edge cases or produce malformed JSON.
 
 ### qwen2.5-coder:7b
@@ -84,8 +84,8 @@ The non-thinking models are faster but produce more false positives. See the [RE
 
 ## History
 
-This started with the wish to use AI coding agents on a codebasefor system configuration management that has a very long history. Using gitleaks worked pretty well but failed to find less obvious secrets. Writing more regexes was still not going to work, because of the wide variety of file types and languages.
+This started with the wish to use AI coding agents on a codebase for system configuration management that has a very long history. Using gitleaks worked pretty well but failed to find less obvious secrets. Writing more regexes was still not going to work, because of the wide variety of file types and languages.
 
-The initial attempts to prompt `opencode` using local LLMs failed, the agent was soon forgetting which files it had considered and which it had not. So I asked ChatGPT how to get better results and it suggested to use a script to call directly the LLM for each file, and to use a very prescriptive prompt.
+The initial attempts to prompt `opencode` using a local LLMs failed; the agent was soon forgetting which files it had considered and which ones it had not. So I asked ChatGPT how to get better results and it suggested to use a script to call directly the LLM for each file, and to use a very prescriptive prompt.
 
-The first version, with prompt and python produced entirely by ChatGPT, already produced interesting results. Afterwards I have refined the script with the help of Antigravity, collected some test cases and compared the results of different models.
+The first version, with prompt and python produced entirely by ChatGPT, already produced promising results. Afterwards I have refined the script with the help of Antigravity, collected some test cases and compared the results of different models. Using the thinking models, I have managed to get very good results, but it is slow. Using non-thinking models is much faster but produces more false positives. 

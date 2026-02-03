@@ -69,7 +69,7 @@ def run_ollama(prompt: str) -> str:
         if not SHOW_THINKING:
             cmd.append("--hidethinking")
         cmd.append(MODEL)
-        
+
         proc = subprocess.run(
             cmd,
             input=prompt,
@@ -100,28 +100,44 @@ def extract_json_array(text: str):
     snippet = text[start:end + 1]
     return json.loads(snippet)
 
+def check_binary(data):
+    if b"\x00" in data:
+        return True
+    # Count non-text bytes
+    # ASCII control chars except common whitespace are suspicious
+    text_chars = bytearray({7, 8, 9, 10, 12, 13, 27} | set(range(32, 127)))
+    nontext = sum(byte not in text_chars for byte in data)
+
+    # If more than 30% non-text, call it binary
+    return (nontext / len(data)) > 0.30
+    #return False
+
+def findings_error(error) :
+    return [{
+                "line": None,
+                "type": "error",
+                "confidence": "medium",
+                "snippet": "",
+                "reason": error
+            }]
+
 def scan_file(path: pathlib.Path):
     try:
-        content = path.read_text(errors="ignore")
-    except Exception:
-        print(f"{ts()} ## scan {path} error: cannot read",flush=True)
-        return [{
-                    "line": None,
-                    "type": "error",
-                    "confidence": "medium",
-                    "snippet": "",
-                    "reason": f"File cannot be read"
-                }]
+        #content = path.read_text(errors="ignore")
+        with path.open(mode='rb') as file:
+            content = file.read(int(MAX_FILE_SIZE*2)) ## limit read size
+    except Exception as e:
+        print(e)
+        print(f"{ts()} ## scan {path} error: cannot read file {e}",flush=True)
+        return findings_error(f"File cannot be read {e}")
+
+    if check_binary(content):
+        print(f"{ts()} ## scan {path} error: binary file",flush=True)
+        return findings_error(f"Binary file")
 
     if len(content) > MAX_FILE_SIZE:
         print(f"{ts()} ## scan {path} error: too large {len(content)} > {MAX_FILE_SIZE}",flush=True)
-        return [{
-                    "line": None,
-                    "type": "error",
-                    "confidence": "medium",
-                    "snippet": "",
-                    "reason": f"File too large: {len(content)} > {MAX_FILE_SIZE}"
-                }]
+        return findings_error(f"File too large: {len(content)} > {MAX_FILE_SIZE}")
 
     prompt = PROMPT_TEMPLATE.format(
         path=str(path),
@@ -150,13 +166,7 @@ def scan_file(path: pathlib.Path):
             print(f"{ts()} ## Exception: {e}")
             if output is not None: print(output)
             if attempt == RETRIES:
-                findings = [{
-                    "line": None,
-                    "type": "error",
-                    "confidence": "medium",
-                    "snippet": "",
-                    "reason": f"LLM failure: {e}"
-                }]
+                findings = findings_error(f"LLM failure: {e}")
                 break
             time.sleep(1)
 
@@ -173,7 +183,7 @@ def scan_targets(results, paths):
         "total_issues": 0,
         "errors": 0
     }
-    
+
     def generate_paths(paths):
         for p in paths:
             path = pathlib.Path(p)
@@ -189,16 +199,14 @@ def scan_targets(results, paths):
             continue
         if ".git" in path.parts:
             continue
-        if ".DS_Store" in path.parts:
-            continue
 
         stats["scanned"] += 1
         findings = scan_file(path)
-        
+
         has_error = any(f.get("type") == "error" for f in findings)
         if has_error:
             stats["errors"] += 1
-            
+
         real_findings = [f for f in findings if f.get("type") != "error"]
         if real_findings:
             stats["files_with_issues"] += 1
@@ -217,14 +225,14 @@ def main():
     parser.add_argument("--model", default=MODEL, help=f"Ollama model (default: {MODEL})")
     parser.add_argument("--max-size", type=int, default=MAX_FILE_SIZE, dest="max_size", help=f"Max file size (default: {MAX_FILE_SIZE})")
     parser.add_argument("--show-thinking", action="store_true", help="Show model thinking/reasoning process")
-    
+
     args = parser.parse_args()
 
     # Update globals
     MODEL = args.model
     MAX_FILE_SIZE = args.max_size
     SHOW_THINKING = args.show_thinking
-    
+
     targets = args.targets
 
     print(f"{ts()} credleaks using ollama model {MODEL}",flush=True)
@@ -236,7 +244,7 @@ def main():
         print(f"{ts()} ## scan completed")
     except (KeyboardInterrupt, BrokenPipeError):
         print(f"{ts()} ## scan interrupted")
-    
+
     t_end = datetime.datetime.now()
     total_time = t_end - t_start
 
